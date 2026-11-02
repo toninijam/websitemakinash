@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Car Auctions M.N</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top, rgba(239, 68, 68, 0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.1), transparent 25%),
+        #020817;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .brand-premium {
+      font-family: 'Orbitron', 'Segoe UI', sans-serif;
+      letter-spacing: 0.18em;
+      text-shadow: 0 0 22px rgba(248, 113, 113, 0.35);
+    }
+
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .luxury-card {
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .luxury-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 70px rgba(239, 68, 68, 0.16);
+    }
+
+    .floating-badge {
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .customs-info-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.15rem;
+      height: 1.15rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(252, 165, 165, 0.8);
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+      font-size: 0.7rem;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .customs-info-button:hover {
+      transform: scale(1.06);
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .customs-info-popover {
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translate(0.5rem, -50%);
+      z-index: 60;
+      padding: 0.35rem 0.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      background: rgba(15, 23, 42, 0.96);
+      color: #fecaca;
+      font-size: 0.68rem;
+      line-height: 1.3;
+      white-space: nowrap;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+    }
+
+    .assistant-fab {
+      position: fixed;
+      right: 1.25rem;
+      bottom: 1.25rem;
+      width: 4.25rem;
+      height: 4.25rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.96), rgba(14, 116, 144, 0.9));
+      box-shadow: 0 18px 42px rgba(239, 68, 68, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 80;
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .assistant-fab:hover {
+      transform: scale(1.03);
+      box-shadow: 0 20px 48px rgba(56, 189, 248, 0.28);
+    }
+
+    .assistant-fab.dragging {
+      cursor: grabbing;
+      transform: scale(1.05);
+    }
+
+    .assistant-avatar {
+      width: 2.7rem;
+      height: 2.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.26);
+    }
+
+    .assistant-avatar svg {
+      width: 1.75rem;
+      height: 1.75rem;
+      display: block;
+    }
+
+    .assistant-status-dot {
+      position: absolute;
+      bottom: 0.3rem;
+      right: 0.4rem;
+      width: 0.8rem;
+      height: 0.8rem;
+      background: #22c55e;
+      border: 2px solid rgba(2, 6, 23, 0.9);
+      border-radius: 9999px;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
+    }
+
+    .assistant-chat-panel {
+      position: fixed;
+      width: min(22rem, calc(100vw - 1.25rem));
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 1.25rem;
+      box-shadow: 0 25px 60px rgba(2, 6, 23, 0.65);
+      overflow: hidden;
+      z-index: 79;
+      backdrop-filter: blur(18px);
+    }
+
+    .assistant-chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(14, 116, 144, 0.12));
+    }
+
+    .assistant-chat-header .title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    .assistant-chat-header .mini-avatar {
+      width: 2.1rem;
+      height: 2.1rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(254, 202, 202, 0.35);
+    }
+
+    .assistant-chat-header .mini-avatar svg {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+
+    .assistant-close-btn {
+      border: none;
+      background: transparent;
+      color: rgba(226, 232, 240, 0.8);
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    .assistant-messages {
+      max-height: 18rem;
+      overflow-y: auto;
+      padding: 0.9rem 0.9rem 0.7rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      background: rgba(2, 6, 23, 0.2);
+    }
+
+    .assistant-message {
+      max-width: 88%;
+      padding: 0.7rem 0.8rem;
+      border-radius: 0.9rem;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.12);
+    }
+
+    .assistant-message.bot {
+      align-self: flex-start;
+      background: rgba(15, 23, 42, 0.9);
+      color: #e2e8f0;
+      border-top-left-radius: 0.2rem;
+    }
+
+    .assistant-message.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(234, 88, 12, 0.86));
+      color: white;
+      border-top-right-radius: 0.2rem;
+    }
+
+    .assistant-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      padding: 0 0.9rem 0.7rem;
+      background: rgba(2, 6, 23, 0.2);
+    }
+
+    .assistant-suggestion {
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e2e8f0;
+      border-radius: 9999px;
+      padding: 0.42rem 0.7rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+
+    .assistant-car-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin: 0 0.15rem;
+      color: #fca5a5;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 0.15rem;
+      cursor: pointer;
+      transition: color 0.2s ease, opacity 0.2s ease;
+    }
+
+    .assistant-car-link:hover {
+      color: #f87171;
+      opacity: 0.92;
+    }
+
+    .assistant-form {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.8rem 0.9rem 0.9rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.14);
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    .assistant-form input {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: white;
+      border-radius: 9999px;
+      padding: 0.7rem 0.9rem;
+      outline: none;
+    }
+
+    .assistant-form input:focus {
+      border-color: rgba(248, 113, 113, 0.9);
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.12);
+    }
+
+    .assistant-form button {
+      border: none;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #ef4444, #f97316);
+      color: white;
+      padding: 0.7rem 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-white font-sans antialiased">
+
+<!-- Hero Section -->
+<section id="homePage" class="min-h-screen relative flex flex-col justify-center items-center overflow-hidden">
+  <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0 opacity-35">
+    <source src="ferrari.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/50 z-10"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(239,68,68,0.22),_transparent_35%)] z-10"></div>
+
+  <div class="relative z-20 container mx-auto px-4 text-center">
+    <div class="floating-badge inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-sm font-medium text-red-200 tracking-[0.2em] uppercase">
+      <span class="w-2 h-2 rounded-full bg-red-500"></span>
+      Trusted luxury auctions
+    </div>
+
+    <h1 class="mt-8 text-5xl md:text-7xl font-black tracking-tight text-white leading-none">
+      PREMIUM <span class="text-red-500">CARS</span>
+    </h1>
+    <p class="mt-6 text-lg md:text-xl text-slate-200 max-w-3xl mx-auto leading-relaxed">
+      Buy and sell premium cars with ease. Explore luxury, classic, and damaged vehicles across Albania and beyond in a cleaner, smarter, and more exciting marketplace.
+    </p>
+
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+      <button type="button" onclick="restoreMarketplaceView('inventory')" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-full text-lg font-semibold shadow-lg shadow-red-600/30 transition duration-300">FIND NEW CAR</button>
+      <button type="button" onclick="restoreMarketplaceView('damaged')" class="border border-white/20 bg-white/5 hover:bg-white/10 text-white px-8 py-3 rounded-full text-lg font-semibold transition duration-300">EXPLORE DAMAGED CARS</button>
+    </div>
+
+    <div class="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+      <div class="glass-panel rounded-2xl p-4">
+        <div class="text-3xl font-black text-red-500">250+</div>
+        <div class="text-sm text-slate-300">Premium listings</div>
+      </div>
+      <div class="glass-panel rounded-2xl p-4">
+        <div class="text-3xl font-black text-green-400">24/7</div>
+        <div class="text-sm text-slate-300">Live support</div>
+      </div>
+      <div class="glass-panel rounded-2xl p-4">
+        <div class="text-3xl font-black text-cyan-400">98%</div>
+        <div class="text-sm text-slate-300">Verified quality</div>
+      </div>
+      <div class="glass-panel rounded-2xl p-4">
+        <div class="text-3xl font-black text-yellow-400">15k</div>
+        <div class="text-sm text-slate-300">Happy buyers</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="featuresPage" class="py-20 bg-slate-950 relative">
+  <div class="container mx-auto px-4">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <p class="text-red-400 uppercase tracking-[0.3em] text-xs font-semibold">Why choose us</p>
+      <h2 class="mt-4 text-4xl font-black text-white">Luxury buying, simplified.</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="luxury-card glass-panel rounded-2xl p-7 text-left">
+        <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-green-500/10 text-2xl mb-5">✓</div>
+        <h3 class="text-2xl font-bold text-green-400 mb-3">Verified Listings</h3>
+        <p class="text-slate-300 leading-relaxed">Every vehicle is carefully inspected and reported with accurate condition details from MALENA-LENCI MOTORS.</p>
+      </div>
+
+      <div class="luxury-card glass-panel rounded-2xl p-7 text-left">
+        <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-cyan-500/10 text-2xl mb-5">⚡</div>
+        <h3 class="text-2xl font-bold text-cyan-400 mb-3">Live Auctions</h3>
+        <p class="text-slate-300 leading-relaxed">Join active auctions with real-time updates, transparent pricing, and a premium buyer experience.</p>
+      </div>
+
+      <div class="luxury-card glass-panel rounded-2xl p-7 text-left">
+        <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-red-500/10 text-2xl mb-5">🔎</div>
+        <h3 class="text-2xl font-bold text-red-400 mb-3">Damaged Car Filters</h3>
+        <p class="text-slate-300 leading-relaxed">Easily browse crashed, fire-damaged, or repair-needed vehicles across one clean and powerful search experience.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Car Listings Section -->
+<section id="listings" class="py-2 px-4 bg-black">
+  <div class="text-center text-3xl font-bold text-green-500 mb-10"></div>
+</section>
+<section class="flex flex-col items-center"></section>
+
+<header class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
+  <div class="container mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <div class="relative">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-orange-400 shadow-[0_0_25px_rgba(239,68,68,0.55)] ring-2 ring-white/10 flex items-center justify-center overflow-hidden">
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_55%)]"></div>
+          <div class="relative text-lg font-black tracking-[0.18em] text-white">P</div>
+        </div>
+      </div>
+      <div>
+        <div class="brand-premium text-lg font-black text-white">PREMIUM</div>
+        <div class="text-[10px] tracking-[0.38em] text-red-400">AUCTION</div>
+      </div>
+    </div>
+
+    <nav class="hidden lg:flex items-center gap-6 text-sm text-slate-300">
+      <button type="button" onclick="restoreMarketplaceView('inventory')" class="hover:text-white transition">Inventory</button>
+      <button type="button" onclick="restoreMarketplaceView('auctions')" class="hover:text-white transition">Auctions</button>
+      <button type="button" onclick="restoreMarketplaceView('damaged')" class="hover:text-white transition">Damaged Cars</button>
+      <button type="button" onclick="showAboutPage()" class="hover:text-white transition">About</button>
+    </nav>
+
+    <input 
+      type="text" 
+      placeholder="Search for a new vehicle..." 
+      id="searchInput" 
+      oninput="filterCars()"
+      class="flex-1 min-w-[220px] max-w-xl bg-slate-900/80 text-white border border-slate-700 rounded-full px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-slate-400"
+    />
+
+    <div class="flex items-center gap-3">
+      <button type="button" id="savedCarsToggle" onclick="toggleSavedCarsPanel()" class="relative bg-slate-800 text-white px-3 py-2.5 rounded-full border border-slate-600 hover:border-red-500 hover:text-red-300 transition">
+        Saved
+        <span id="savedCarsCount" class="ml-1 inline-flex min-w-5 h-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">0</span>
+      </button>
+
+      <button onclick="toggleCarView()" class="bg-red-600 text-white px-4 py-2.5 rounded-full hover:bg-red-700 transition font-medium shadow-lg shadow-red-600/20">
+        View Crashed Cars
+      </button>
+
+      <div id="authControl">
+        <button onclick="openSignIn()" class="bg-slate-800 text-white px-4 py-2.5 rounded-full border border-slate-600 hover:border-red-500 hover:text-red-300 transition">Sign In</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+  <!-- Saved Cars -->
+  <section id="savedCarsSection" class="hidden border-t border-white/10 bg-slate-950/80">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <h3 class="text-2xl font-bold text-white">Saved vehicles</h3>
+        <button type="button" onclick="clearSavedCars()" class="text-red-300 hover:text-red-200 underline">Clear all</button>
+      </div>
+      <div id="savedCarsList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+    </div>
+  </section>
+
+  <!-- Filter Controls -->
+  <section id="filterSection" class="bg-gray-800 shadow-md mt-2 py-4">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center gap-2 mb-4">
+        <input id="filterInput" type="text" placeholder="Add a filter (e.g. Tesla, 2020)" class="bg-black text-white border border-gray-600 rounded px-3 py-1 w-64">
+        <button onclick="addFilter()" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Add Filter</button>
+        <div class="ml-auto flex items-center gap-3">
+          <button type="button" onclick="openCostCalculatorModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold px-3 py-1.5 rounded">Cost Calculator</button>
+          <button onclick="clearAllFilters()" class="text-red-400 underline">Clear All Filters</button>
+        </div>
+      </div>
+      <div id="filterContainer" class="flex flex-wrap gap-2"></div>
+    </div>
+  </section>
+
+  <!-- Listings -->
+  <section id="listingsPage" class="py-8">
+    <div class="container mx-auto px-4">
+      <div id="carList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- JS renders cars here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Vehicle Details Modal -->
+  <div id="carDetailsModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl shadow-red-900/20">
+      <button type="button" onclick="closeCarDetails()" class="absolute top-4 right-4 text-slate-300 hover:text-red-400 text-2xl z-10">✕</button>
+
+      <div class="grid lg:grid-cols-[1.15fr_0.85fr]">
+        <div class="p-4 md:p-6 border-b lg:border-b-0 lg:border-r border-white/10">
+          <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950">
+            <img id="detailImage" src="" alt="Vehicle detail" class="w-full h-[360px] object-cover" />
+            <div id="damageOverlay" class="absolute inset-0 pointer-events-none"></div>
+          </div>
+        </div>
+
+        <div class="p-5 md:p-6">
+          <p id="detailStatus" class="text-xs uppercase tracking-[0.3em] text-red-400 font-semibold"></p>
+          <h2 id="detailTitle" class="mt-3 text-3xl font-black text-white"></h2>
+
+          <div class="mt-4 flex flex-wrap gap-2 text-sm">
+            <span id="detailCondition" class="px-3 py-1 rounded-full bg-slate-800 text-slate-200 border border-white/10"></span>
+            <span id="detailPrice" class="px-3 py-1 rounded-full bg-red-600/15 text-red-300 border border-red-500/20"></span>
+          </div>
+
+          <div id="detailSummary" class="mt-6 text-slate-300 leading-relaxed"></div>
+
+          <div id="detailCrashHistory" class="mt-5 hidden rounded-2xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-100">
+            <div class="text-xs uppercase tracking-[0.25em] text-red-300 mb-2">Crash history</div>
+            <p id="detailCrashText"></p>
+          </div>
+
+          <div class="mt-6">
+            <p class="text-xs uppercase tracking-[0.25em] text-slate-400">Damaged parts</p>
+            <ul id="detailDamagedParts" class="mt-3 flex flex-wrap gap-2"></ul>
+          </div>
+
+          <div class="mt-6">
+            <p class="text-xs uppercase tracking-[0.25em] text-slate-400">Vehicle details</p>
+            <div id="detailSpecs" class="mt-3 grid grid-cols-2 gap-3 text-sm"></div>
+          </div>
+
+          <button type="button" onclick="closeCarDetails()" class="mt-7 w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-full font-semibold transition">Close details</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Page -->
+  <section id="aboutPage" class="hidden min-h-screen bg-slate-950 text-white py-16">
+    <div class="container mx-auto px-4">
+      <div class="max-w-5xl mx-auto">
+        <button type="button" onclick="showHomePage()" class="mb-8 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-full font-semibold transition">
+          ← Back to home
+        </button>
+
+        <div class="glass-panel rounded-3xl p-8 md:p-12">
+          <p class="text-red-400 uppercase tracking-[0.3em] text-xs font-semibold">About us</p>
+          <h1 class="mt-5 text-4xl md:text-6xl font-black tracking-tight text-white">Premium Cars M.N</h1>
+
+          <div class="mt-8 grid md:grid-cols-2 gap-8 text-slate-200 leading-relaxed">
+            <div>
+              <p class="mb-4">
+                Premium Cars M.N is a modern vehicle marketplace built for people who want faster access to quality vehicles,
+                better pricing, and a cleaner buying experience. We connect buyers and sellers in Albania and beyond with transparent
+                listings, verified condition reports, and live auction opportunities.
+              </p>
+              <p class="mb-4">
+                Our mission is simple: make luxury, used, and damaged car buying easier, more secure, and more exciting. Whether you
+                are looking for a clean daily driver or a repaired performance vehicle, our platform gives you a smarter place to explore.
+              </p>
+            </div>
+
+            <div class="space-y-4">
+              <div class="bg-slate-900/70 border border-white/10 rounded-2xl p-4">
+                <div class="text-3xl font-black text-red-500">250+</div>
+                <div class="text-slate-300">Curated vehicle listings</div>
+              </div>
+              <div class="bg-slate-900/70 border border-white/10 rounded-2xl p-4">
+                <div class="text-3xl font-black text-cyan-400">24/7</div>
+                <div class="text-slate-300">Support and market updates</div>
+              </div>
+              <div class="bg-slate-900/70 border border-white/10 rounded-2xl p-4">
+                <div class="text-3xl font-black text-green-400">98%</div>
+                <div class="text-slate-300">Verified vehicle quality</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-12 grid md:grid-cols-3 gap-6">
+            <div class="bg-slate-900/70 border border-white/10 rounded-2xl p-6">
+              <h2 class="text-2xl font-bold text-red-400 mb-3">Our Values</h2>
+              <p class="text-slate-300">Transparency, trust, and fairness in every listing and every negotiation.</p>
+            </div>
+            <div class="bg-slate-900/70 border border-white/10 rounded-2xl p-6">
+              <h2 class="text-2xl font-bold text-cyan-400 mb-3">How we work</h2>
+              <p class="text-slate-300">We organize vehicles by condition, location, and value so buyers can compare options quickly.</p>
+            </div>
+            <div class="bg-slate-900/70 border border-white/10 rounded-2xl p-6">
+              <h2 class="text-2xl font-bold text-green-400 mb-3">Why choose us</h2>
+              <p class="text-slate-300">From premium luxury cars to repairable vehicles, we simplify the process for every kind of buyer.</p>
+            </div>
+          </div>
+
+          <div class="mt-12 rounded-3xl border border-red-500/20 bg-gradient-to-r from-red-500/10 via-slate-900/80 to-cyan-500/10 p-8">
+            <h2 class="text-3xl font-black text-white mb-4">Built for serious buyers and sellers</h2>
+            <p class="text-slate-200 max-w-3xl leading-relaxed">
+              Whether you are buying your next premium vehicle, exploring damaged car auctions, or looking to sell quickly, Premium Cars M.N
+              gives you the tools, trust, and market access needed to move forward with confidence.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 shadow-inner text-center mt-8">
+    <div class="h-2 bg-red-600"></div>
+    <div class="py-4 text-gray-400 flex justify-center items-center gap-2">
+    <img src="https://www.shutterstock.com/image-vector/automotive-auto-king-logo-design-260nw-503393113.jpg" class="w-16 h-16 rounded-full" alt="Car Icon"/>
+
+      <span><div class="flex items-center justify-center gap-3 text-slate-200/90 text-xs sm:text-sm tracking-[0.22em] uppercase font-medium">
+  <span class="inline-flex items-center justify-center w-7 h-7 rounded-full border border-red-400/40 bg-red-500/10 shadow-[0_0_18px_rgba(248,113,113,0.2)]">
+    <svg viewBox="0 0 24 24" fill="none" class="w-4 h-4 text-red-300" aria-hidden="true">
+      <path d="M5 15.5h14l-1.2-5.2A2 2 0 0 0 15.8 9H8.2a2 2 0 0 0-1.9 1.3L5 15.5Zm2.5 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm9 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM7 5l1-2h8l1 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </span>
+  <span class="brand-premium text-[10px] sm:text-xs text-red-200 tracking-[0.25em]">© 2026 Premium Cars M.N</span>
+  <span class="text-slate-400">•</span>
+  <span class="text-slate-300/90 tracking-[0.18em]">All Rights Reserved</span>
+</div></span>
+    </div>
+  </footer>
+
+  <div id="assistantFloatingButton" class="assistant-fab" aria-label="Open car assistant" role="button" tabindex="0">
+    <div class="assistant-avatar" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="8" r="4" fill="#F8FAFC"/>
+        <path d="M5 18.5C6.3 15.5 8.8 13.8 12 13.8C15.2 13.8 17.7 15.5 19 18.5" stroke="#F8FAFC" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M7 8.5C7 6.2 9 4.5 12 4.5C15 4.5 17 6.2 17 8.5" stroke="#F8FAFC" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
+      </svg>
+    </div>
+    <span class="assistant-status-dot" aria-hidden="true"></span>
+  </div>
+
+  <div id="assistantChatPanel" class="assistant-chat-panel hidden" aria-live="polite">
+    <div class="assistant-chat-header">
+      <div class="title-wrap">
+        <div class="mini-avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="8" r="4" fill="#F8FAFC"/>
+            <path d="M5 18.5C6.3 15.5 8.8 13.8 12 13.8C15.2 13.8 17.7 15.5 19 18.5" stroke="#F8FAFC" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-[0.22em] text-red-300">AI assistant</div>
+          <div class="text-sm font-bold text-white">Car manager</div>
+        </div>
+      </div>
+      <button type="button" id="assistantCloseBtn" class="assistant-close-btn" aria-label="Close assistant chat">✕</button>
+    </div>
+
+    <div id="assistantMessages" class="assistant-messages">
+      <div class="assistant-message bot">Hi! I'm your Premium Cars assistant. How can I help you today?</div>
+    </div>
+
+    <div class="assistant-suggestions">
+      <button type="button" class="assistant-suggestion" data-query="Find me a luxury BMW under 100k">Luxury BMW</button>
+      <button type="button" class="assistant-suggestion" data-query="Is this Audi A8 in stock?">Audi A8</button>
+      <button type="button" class="assistant-suggestion" data-query="Show me damaged cars available now">Damaged cars</button>
+    </div>
+
+    <form id="assistantForm" class="assistant-form">
+      <input id="assistantInput" type="text" placeholder="Ask about stock, budget, model..." aria-label="Chat with AI assistant" />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <!-- JS -->
+  <script>
+    const cars = [
+      {
+        title: " 2015 Audi A8",
+        condition: "Like New",
+        mileage: "98,397 mi",
+        engine: "3.0L V6 Gasoline",
+        status: "Run & Drive",
+        location: "Tirana,Albania",
+        auction: "Tue Apr 22, 8:30am CDT",
+		price: "25,000", 
+        phone: "069 666 6666",
+        image: "https://www.exoticmotorsportsok.com/imagetag/560/4/l/Used-2014-Audi-A8-L-30-TDI-1619507046.jpg"
+      },
+      {
+        title: " 2017 VW Golf GTI",
+        condition: "Clean Title",
+        mileage: "70,100 mi",
+        engine: "2.0L diesel",
+        status: "Run & Drive",
+        location: "Vaqarr,Tirana",
+        auction: "Tue Apr 23, 9:00am CDT",
+		price: "18,000",
+        phone: "068 888 888",
+        image: "https://www.supersprint.com/public/img/VW%20GOLF%20VII%20GTI%20Performance%202.0%20TSI%20(245%20Hp)%202016_web-467390.jpg"
+      },
+      {
+        title: " 1969 VW BEETLE",
+        condition: "In Good Condition",
+        mileage: "122,000 mi",
+        engine: "1.3L Gasoline",
+        status: "Run & Drive",
+        location: "Tirana,Albania",
+        auction: "Wed Apr 24, 10:00am CDT",
+		price: "12,000",
+        phone: "067 777 7777",
+        image: "https://s1.cdn.autoevolution.com/images-webp/news/one-old-blue-volkswagen-beetle-and-a-new-negative-speeding-record-bring-a-record-fine-201922-7.jpg.webp"
+      },
+      {
+        title: "2018 Mercedes-Benz C Class",
+        condition: "Clean Title",
+        mileage: "45,500 mi",
+        engine: "2.0L Turbo I4",
+        status: "Run & Drive",
+        location: "Durrës,Albania",
+        auction: "Thu Apr 25, 11:30am CDT",
+		price: "21,000",
+        phone: "069 777 1111",
+        image: "https://images.dealersync.com/3/Photos/1013699/20230714220633872_IMG_6785.jpg?_=e5cd719b377ea9992caf628824b8c8ff8d0732bd"
+      },
+      {
+        title: " 2018 Audi A7",
+        condition: "Needs Engine Service",
+        mileage: "180,430 mi",
+        engine: "3.0L V6 Gasoline",
+        status: "Run & Drive",
+        location: "Tirana,Albania",
+        auction: "Fri Apr 26, 9:00am CDT",
+		price: "30,000",
+        phone: "067 222 7777",
+        image: "https://media.ed.edmunds-media.com/audi/a7/2018/oem/2018_audi_a7_sedan_prestige-quattro_fq_oem_2_815.jpg"
+      },
+      {
+        title: "2022 Range Rover Vogue",
+        condition: "Clean Title",
+        mileage: "12,000 mi",
+        engine: "3.0L I6 Turbo",
+        status: "Run & Drive",
+        location: "Durrës,Albania",
+        auction: "Mon Apr 28, 11:00am CDT",
+		price: "120,000",
+        phone: "067 474 5777",
+        image: "https://bluesky.cdn.imgeng.in/cogstock-images/eae1854d-b720-425a-a433-41643a29ee1e.jpg?migeng=/w_1200/cmpr_99/"
+      },
+      {
+        title: "2018 Mercedes-Benz S Class ",
+        condition: "Like New",
+        mileage: "140,500 mi",
+        engine: "3.0L V6 Gasoline",
+        status: "Run & Drive",
+        location: "Vlorë,Albania",
+        auction: "Tue Apr 29, 10:00am CDT",
+		price: "80,000",
+        phone: "068 777 3721",
+        image: "https://carsales.pxcrush.net/carsales/cars/dealer/2962e5qrk3x8zfm0wqkgki9lv.jpg?pxc_method=fitfill&pxc_bgtype=self&pxc_size=720,480"
+      },
+      {
+        title: "2022 BMW M3 Competition",
+        condition: "Clean Title",
+        mileage: "16,500 mi",
+        engine: "3.0L Twin-Turbo I6",
+        status: "Run & Drive",
+        location: "Durrës,Albania",
+        auction: "Wed Apr 30, 12:00pm CDT",
+		price: "95,000",
+        phone: "069 329 7777",
+        image: "https://bringatrailer.com/wp-content/uploads/2024/07/2022_bmw_m3_2022_bmw_m3_89693873-c919-48bd-a9ef-2275d93ab526-edel87-15707-15708-scaled.jpg?fit=2048%2C1365"
+      },
+      {
+        title: "2018 BMW X7 M60i",
+        condition: "In Good Condition",
+        mileage: "143,800 mi",
+        engine: "4.4L Twin-Turbo V8",
+        status: "Run & Drive",
+        location: "Tirana,Albania",
+        auction: "Thu May 1, 9:00am CDT",
+		price: "130,000",
+        phone: "067 777 3217",
+        image: "https://www.stratstone.com/-/media/evanshalshaw/used-cars/bmw/x7/bmw-x7-front-720x405px.ashx?mh=1440&la=en&h=405&w=720&mw=2560&hash=9CE25EB98EF302DC52EC22E7D3C2B2A4"
+      },
+      {
+        title: "2015 Mercedes G-Wagon AMG G63",
+        condition: "Clean Title",
+        mileage: "120,000 mi",
+        engine: "4.0L V8 Biturbo",
+        status: "Run & Drive",
+        location: "Tirana,Albania",
+        auction: "Fri May 2, 10:30am CDT",
+		price: "100,000",
+        phone: "067 737 7867",
+        image: "https://www.exclusiveautomotivegroup.com/imagetag/3159/main/l/Used-2015-Mercedes-Benz-G-Class-G-63-AMG-1653480669.jpg"
+      },
+	   {
+        title: "2020 Audi A8",
+        condition: "Clean Title",
+        mileage: "100,000 mi",
+        engine: "4.0L V8 engine",
+        status: "Run & Drive",
+        location: "Tirana,Albania",
+        auction: "Fri May 1, 10:30am CDT",
+		price: "80,000",
+        phone: "069 937 4507",
+        image: "https://www.mallistimsportline.gr/portal-img/product_image_thumbs/3/brs05144.JPG"
+      },
+        {
+        title: " 1999 Nissan Skyline R34 GT-R",
+        condition: "Like New",
+        mileage: "40,000 mi",
+        engine: "2.6L V6 Gasoline",
+        status: "Run & Drive",
+        location: "Tirana,Albania",
+        auction: "Fri Jan 22, 9:13pm CDT",
+		price: "40,000",
+        phone: "067 676 6767",
+        image: "https://cdn.motor1.com/images/mgl/P3nO74/s1/2000-nissan-skyline-r34-gt-r-by-kaizo-industries-driven-by-paul-walker-in-fast-and-furious-bonham-s-auction.webp"
+      },
+	  {
+        title: "2015 Porche Panamera ",
+        condition: "Clean Title",
+        mileage: "150,000 mi",
+        engine: "4.0L V8 engine",
+        status: "Run & Drive",
+        location: "DUrrës,Albania",
+        auction: "Fri May 5, 10:30am CDT",
+		price: "30,000",
+        phone: "069 947 1503",
+        image: "https://images.clickdealer.co.uk/vehicles/5796/5796067/large2/135994896.jpg"
+      },
+	  {
+        title: "2018 BMW M5",
+        condition: "Needs repairment",
+        mileage: "140,800 mi",
+        engine: "4.4L Twin-Turbo V8",
+        status: "Crashed",
+        location: "Tirana,Albania",
+        auction: "Thu May 1, 9:00am CDT",
+		price: "60,000",
+        phone: "067 732 3217",
+        image: "https://cvis.iaai.com/resizer?imageKeys=41739335~SID~B707~S0~I1~RW2576~H1932~TH0&width=640&height=480"
+      },
+	   {
+        title: "2021 Audi A8",
+        condition: "Needs repairment,front damaged",
+        mileage: "70,800 mi",
+        engine: "4.4L Twin-Turbo V8",
+        status: "Crashed",
+        location: "Tirana,Albania",
+        auction: "Thu May 5, 9:00am CDT",
+		price: "140,000",
+        phone: "069 732 2217",
+        image: "https://mercury.bid.cars/1-39482913/2021-Audi-A8-WAU8DAF87MN025767-4.jpg"
+      },
+	  {
+        title: "2020 Audi RS6",
+        condition: "Needs repairment,front damaged",
+        mileage: "50,340 mi",
+        engine: "3.0L V6 Gasoline ",
+        status: "Crashed",
+        location: "Vlorë,Albania",
+        auction: "Thu May 8, 9:00am CDT",
+		price: "90,000",
+        phone: "069 332 0297",
+        image: "https://weby-production-images.s3.eu-central-1.amazonaws.com/8o0i1elzbyz1yy1o2e2kbwwnjfq1"
+      },
+	  {
+        title: "2013 Mercedes-Benz E Class",
+        condition: "Needs repairment,front damaged",
+        mileage: "110,000 mi",
+        engine: "3.0L Gasoline engine",
+        status: "Crashed",
+        location: "Tirana,Albania",
+        auction: "Fri May 1, 10:30am CDT",
+		price: "10,000",
+        phone: "069 739 5467",
+        image: "https://cs.copart.com/v1/AUTH_svc.pdoc00001/ids-c-prod-lpp/1024/9e1432b1fc644157b5d2f732b1138f3f_ful.jpg"
+      },
+	   {
+        title: "2018 Mercedes-Benz S Class",
+        condition: "Needs repairment",
+        mileage: "150,800 mi",
+        engine: "3.0L V6 Gasoline engine",
+        status: "Crashed",
+        location: "Durrës,Albania",
+        auction: "Fri May 4, 10:30am CDT",
+		price: "20,000",
+        phone: "069 999 5467",
+        image: "https://vis.iaai.com/resizer?imageKeys=40242607~SID~B644~S0~I1~RW2576~H1932~TH0&width=640&height=480"
+      },
+	  {
+        title: "2018 Audi SQ5",
+        condition: "Needs repairment",
+        mileage: "70,800 mi",
+        engine: "3.0T engine",
+        status: "Crashed",
+        location: "Durrës,Albania",
+        auction: "Fri May 9, 10:30am CDT",
+		price: "30,000",
+        phone: "069 888 5467",
+        image: "https://vis.iaai.com/resizer?imageKeys=40742460~SID~B747~S0~I1~RW2576~H1932~TH0&width=845&height=633"
+      },
+	  {
+        title: "2018 Range Rover Vogue",
+        condition: "Fire damaged",
+        mileage: "150,800 mi",
+        engine: "3.0L Gasoline engine",
+        status: "Crashed",
+        location: "Durrës,Albania",
+        auction: "Fri May 7, 10:30am CDT",
+		price: "36,000",
+        phone: "069 777 5467",
+        image: "https://www.autos-motos.net/pictures/BE0428848183/865048/image-01-B~v1733502114.JPG"
+      },
+	   {
+        title: "2019 VW Golf 8 GTI",
+        condition: "Needs repairment",
+        mileage: "60,800 mi",
+        engine: "2.0L Gasoline engine",
+        status: "Crashed",
+        location: "Vlorë,Albania",
+        auction: "Fri May 2, 10:30am CDT",
+		price: "14,000",
+        phone: "069 878 1167",
+        image: "https://d2wxnkq3f3e5mq.cloudfront.net/prod/vehicles/a0CIV000025WHxh2AG/Photos/360/Front_Corner_Right_2.jpg"
+      }
+    ];
+
+    let activeFilters = [];
+    const SAVED_CARS_KEY = 'premiumCarsSavedVehicles';
+
+    function getSavedCars() {
+      try {
+        return JSON.parse(localStorage.getItem(SAVED_CARS_KEY) || '[]');
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function isCarSaved(car) {
+      const savedCars = getSavedCars();
+      return savedCars.some(savedCar => savedCar.title === car.title && savedCar.price === car.price);
+    }
+
+    function updateSavedCarsUI() {
+      const countEl = document.getElementById('savedCarsCount');
+      const count = getSavedCars().length;
+      if (countEl) {
+        countEl.textContent = count;
+      }
+
+      const toggleButton = document.getElementById('savedCarsToggle');
+      if (toggleButton) {
+        toggleButton.classList.toggle('border-red-500', count > 0);
+        toggleButton.classList.toggle('text-red-200', count > 0);
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderSavedCars() {
+      const container = document.getElementById('savedCarsList');
+      if (!container) return;
+
+      const savedCars = getSavedCars();
+      if (!savedCars.length) {
+        container.innerHTML = '<div class="col-span-full rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-6 text-center text-slate-400">No saved vehicles yet. Save a car to keep it here for later.</div>';
+        return;
+      }
+
+      container.innerHTML = savedCars.map(car => `
+        <div class="rounded-2xl border border-white/10 bg-slate-900/80 overflow-hidden shadow-lg shadow-slate-950/30">
+          <div class="relative">
+            <img src="${car.image}" alt="${escapeHtml(car.title)}" class="w-full h-40 object-cover" />
+            <button type="button" class="remove-saved-car-btn absolute top-3 right-3 rounded-full bg-slate-950/80 text-white px-3 py-1 text-xs font-semibold border border-white/10" data-title="${escapeHtml(car.title)}" data-price="${escapeHtml(car.price)}">Remove</button>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between gap-3">
+              <h4 class="text-lg font-bold text-white">${escapeHtml(car.title)}</h4>
+              <span class="text-sm font-semibold text-red-300">$${car.price}</span>
+            </div>
+            <p class="mt-2 text-sm text-slate-300">${escapeHtml(car.condition)}</p>
+            <p class="mt-1 text-xs text-slate-400">${escapeHtml(car.location)}</p>
+            <button type="button" onclick="openSavedCarDetails(${JSON.stringify(car.title)}, ${JSON.stringify(car.price)})" class="mt-4 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-full font-semibold transition">View details</button>
+          </div>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.remove-saved-car-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          removeSavedCarFromList(button.dataset.title, button.dataset.price);
+        });
+      });
+    }
+
+    function toggleSavedCarsPanel() {
+      const panel = document.getElementById('savedCarsSection');
+      if (!panel) return;
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) {
+        renderSavedCars();
+      }
+    }
+
+    function saveCar(car) {
+      const savedCars = getSavedCars();
+      if (!savedCars.some(savedCar => savedCar.title === car.title && savedCar.price === car.price)) {
+        savedCars.push({ ...car });
+        localStorage.setItem(SAVED_CARS_KEY, JSON.stringify(savedCars));
+      }
+      updateSavedCarsUI();
+      renderSavedCars();
+    }
+
+    function removeSavedCar(title, price) {
+      const savedCars = getSavedCars().filter(savedCar => !(savedCar.title === title && savedCar.price === price));
+      localStorage.setItem(SAVED_CARS_KEY, JSON.stringify(savedCars));
+      updateSavedCarsUI();
+      renderSavedCars();
+      const currentCards = document.querySelectorAll('.car-card');
+      currentCards.forEach(card => {
+        const car = JSON.parse(decodeURIComponent(card.dataset.car));
+        const saveButton = card.querySelector('.save-car-btn');
+        if (saveButton) {
+          saveButton.textContent = isCarSaved(car) ? '★ Saved' : '☆ Save';
+          saveButton.classList.toggle('bg-amber-500', isCarSaved(car));
+          saveButton.classList.toggle('bg-slate-700/80', !isCarSaved(car));
+        }
+      });
+    }
+
+    function removeSavedCarFromList(title, price) {
+      removeSavedCar(String(title), String(price));
+    }
+
+    function openSavedCarDetails(title, price) {
+      const foundCar = cars.find(car => car.title === title && car.price === price);
+      if (foundCar) {
+        openCarDetails(foundCar);
+      }
+    }
+
+    function clearSavedCars() {
+      localStorage.removeItem(SAVED_CARS_KEY);
+      updateSavedCarsUI();
+      renderSavedCars();
+      const currentCards = document.querySelectorAll('.car-card');
+      currentCards.forEach(card => {
+        const car = JSON.parse(decodeURIComponent(card.dataset.car));
+        const saveButton = card.querySelector('.save-car-btn');
+        if (saveButton) {
+          saveButton.textContent = isCarSaved(car) ? '★ Saved' : '☆ Save';
+          saveButton.classList.toggle('bg-amber-500', isCarSaved(car));
+          saveButton.classList.toggle('bg-slate-700/80', !isCarSaved(car));
+        }
+      });
+    }
+
+    function toggleSavedCar(car, button) {
+      const isSaved = isCarSaved(car);
+      if (isSaved) {
+        removeSavedCar(car.title, car.price);
+      } else {
+        saveCar(car);
+      }
+
+      if (button) {
+        const savedState = !isSaved;
+        button.textContent = savedState ? '★ Saved' : '☆ Save';
+        button.classList.toggle('bg-amber-500', savedState);
+        button.classList.toggle('bg-slate-700/80', !savedState);
+      }
+    }
+
+    function getDamageParts(car) {
+      const status = String(car.status || '').toLowerCase();
+      if (!status.includes('crashed')) return [];
+
+      const lowerTitle = String(car.title || '').toLowerCase();
+      const lowerCondition = String(car.condition || '').toLowerCase();
+
+      if (lowerCondition.includes('fire') || lowerTitle.includes('range rover')) {
+        return ['Front bumper', 'Radiator support', 'Engine bay', 'Right side panel', 'Windshield'];
+      }
+
+      if (lowerCondition.includes('front damaged') || lowerTitle.includes('a8') || lowerTitle.includes('rs6')) {
+        return ['Front bumper', 'Left headlight', 'Grille', 'Radiator support', 'Front fender'];
+      }
+
+      if (lowerTitle.includes('s class') || lowerTitle.includes('m5')) {
+        return ['Front bumper', 'Hood', 'Headlight', 'Left fender', 'Front grille'];
+      }
+
+      return ['Front bumper', 'Front fender', 'Headlight', 'Radiator support', 'Hood'];
+    }
+
+    function getCrashHistory(car) {
+      const lowerTitle = String(car.title || '').toLowerCase();
+      const lowerCondition = String(car.condition || '').toLowerCase();
+
+      if (!String(car.status || '').toLowerCase().includes('crashed')) {
+        return null;
+      }
+
+      if (lowerCondition.includes('fire')) {
+        return 'The vehicle was involved in a rear-end collision after a wet road event, then a subsequent fire damaged the dashboard and engine bay. The front-right corner and electrical system were repaired before auction listing.';
+      }
+
+      if (lowerCondition.includes('front damaged') || lowerTitle.includes('a8') || lowerTitle.includes('rs6')) {
+        return 'This car was hit on the front-left quarter panel during an evening collision in a busy urban area. The impact pushed the bumper, grille, and radiator assembly back and caused the left headlight to shatter.';
+      }
+
+      return 'The vehicle was involved in a side-impact accident while turning on a wet road. The collision caused structural damage to the right front section and required a full repair estimate before it became available for sale.';
+    }
+
+    function getEstimatedRepairCost(car) {
+      const status = String(car.status || '').toLowerCase();
+      if (!status.includes('crashed')) return null;
+
+      const price = Number(String(car.price || '0').replace(/[^\d.]/g, '')) || 0;
+      const lowerTitle = String(car.title || '').toLowerCase();
+      const lowerCondition = String(car.condition || '').toLowerCase();
+
+      if (lowerCondition.includes('fire')) {
+        return Math.max(18000, Math.round(price * 0.42));
+      }
+
+      if (lowerCondition.includes('front damaged') || lowerTitle.includes('a8') || lowerTitle.includes('rs6')) {
+        return Math.max(12000, Math.round(price * 0.28));
+      }
+
+      if (lowerTitle.includes('s class') || lowerTitle.includes('m5') || lowerTitle.includes('range rover')) {
+        return Math.max(16000, Math.round(price * 0.32));
+      }
+
+      return Math.max(9000, Math.round(price * 0.2));
+    }
+
+    function openCarDetails(car) {
+      const isDamaged = String(car.status || '').toLowerCase().includes('crashed');
+      const damagedParts = getDamageParts(car);
+      const estimatedRepairCost = getEstimatedRepairCost(car);
+      const damageOverlay = document.getElementById('damageOverlay');
+      const detailImage = document.getElementById('detailImage');
+      const detailStatus = document.getElementById('detailStatus');
+      const detailTitle = document.getElementById('detailTitle');
+      const detailCondition = document.getElementById('detailCondition');
+      const detailPrice = document.getElementById('detailPrice');
+      const detailSummary = document.getElementById('detailSummary');
+      const detailCrashHistory = document.getElementById('detailCrashHistory');
+      const detailCrashText = document.getElementById('detailCrashText');
+      const detailDamagedParts = document.getElementById('detailDamagedParts');
+      const detailSpecs = document.getElementById('detailSpecs');
+
+      detailImage.src = car.image;
+      detailImage.alt = car.title;
+      detailStatus.textContent = car.status;
+      detailTitle.textContent = car.title;
+      detailCondition.textContent = car.condition;
+      detailPrice.textContent = `$${car.price}`;
+
+      const specs = [
+        ['Mileage', car.mileage],
+        ['Engine', car.engine],
+        ['Location', car.location],
+        ['Auction', car.auction],
+        ['Phone', car.phone],
+        ['Condition', car.condition]
+      ];
+
+      if (estimatedRepairCost) {
+        specs.push(['Estimated repair cost', `$${estimatedRepairCost.toLocaleString()}`]);
+      }
+
+      detailSpecs.innerHTML = specs.map(([label, value]) => `
+        <div class="rounded-xl border border-white/10 bg-slate-800/80 p-3">
+          <div class="text-[10px] uppercase tracking-[0.2em] text-slate-400">${label}</div>
+          <div class="mt-1 font-semibold text-white">${value}</div>
+        </div>
+      `).join('');
+
+      if (isDamaged) {
+        const crashHistory = getCrashHistory(car);
+        detailCrashHistory.classList.remove('hidden');
+        detailCrashText.textContent = crashHistory || 'Reported history not available.';
+        detailSummary.innerHTML = `This is a damaged vehicle listing with a repair-focused profile. It is sold as a project or rebuild opportunity, and the price reflects the condition after accident assessment.
+          <div class="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-3">
+            <div class="text-[10px] uppercase tracking-[0.2em] text-amber-300">Estimated repair cost</div>
+            <div class="mt-2 text-xl font-bold text-amber-200">$${estimatedRepairCost ? estimatedRepairCost.toLocaleString() : 'N/A'}</div>
+          </div>`;
+      } else {
+        detailCrashHistory.classList.add('hidden');
+        detailSummary.innerHTML = `This vehicle is offered in ${car.condition.toLowerCase()} condition and is ready for inspection through the current auction. It is suitable for buyers who want a clean premium vehicle with clear market value.`;
+      }
+
+      detailDamagedParts.innerHTML = damagedParts.length
+        ? damagedParts.map(part => `<li class="px-3 py-1 rounded-full border border-red-500/20 bg-red-500/10 text-red-200 text-xs uppercase tracking-[0.18em]">${part}</li>`).join('')
+        : '<li class="text-slate-400 text-sm">No major damage reported.</li>';
+
+      damageOverlay.innerHTML = '';
+      if (isDamaged) {
+        const partMap = {
+          'front bumper': { left: '18%', top: '52%' },
+          'headlight': { left: '17%', top: '27%' },
+          'left headlight': { left: '17%', top: '27%' },
+          'grille': { left: '29%', top: '27%' },
+          'hood': { left: '38%', top: '22%' },
+          'front fender': { left: '17%', top: '40%' },
+          'radiator support': { left: '31%', top: '45%' },
+          'engine bay': { left: '40%', top: '46%' },
+          'right side panel': { left: '62%', top: '38%' },
+          'windshield': { left: '33%', top: '12%' },
+          'left fender': { left: '10%', top: '38%' },
+          'front grille': { left: '26%', top: '31%' },
+          'door': { left: '72%', top: '46%' },
+          'rear bumper': { left: '76%', top: '61%' }
+        };
+
+        damagedParts.forEach((part, index) => {
+          const position = partMap[part.toLowerCase()] || { left: '22%', top: '42%' + index * 3 };
+          const badge = document.createElement('div');
+          badge.className = 'absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-300 bg-red-500/80 text-[10px] font-bold tracking-[0.18em] uppercase text-white px-2 py-1 shadow-lg shadow-red-500/30';
+          badge.style.left = position.left;
+          badge.style.top = position.top;
+          badge.textContent = part;
+          damageOverlay.appendChild(badge);
+        });
+      }
+
+      document.getElementById('carDetailsModal').classList.remove('hidden');
+    }
+
+    function closeCarDetails() {
+      document.getElementById('carDetailsModal').classList.add('hidden');
+    }
+
+    function displayCars(list) {
+      const carList = document.getElementById('carList');
+      carList.innerHTML = '';
+      if (list.length === 0) {
+        carList.innerHTML = '<p class="col-span-full text-center text-gray-400">No vehicles found.</p>';
+        return;
+      }
+
+      list.forEach(car => {
+        const statusColor = car.status.toLowerCase().includes("crashed")
+          ? "text-red-500"
+          : "text-green-500";
+
+        const serializedCar = encodeURIComponent(JSON.stringify(car));
+        const saved = isCarSaved(car);
+
+        carList.innerHTML += `
+          <div class="luxury-card car-card bg-slate-900/80 border border-white/10 rounded-2xl overflow-hidden cursor-pointer relative" data-car="${serializedCar}" tabindex="0" role="button" aria-label="Open details for ${car.title}">
+            <button
+              type="button"
+              class="save-car-btn absolute top-4 right-4 z-10 ${saved ? 'bg-amber-500 text-slate-950' : 'bg-slate-700/80 text-white'} border border-white/10 px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg transition"
+              aria-label="${saved ? 'Remove from saved cars' : 'Save car for later'}"
+            >${saved ? '★ Saved' : '☆ Save'}</button>
+
+            <div class="relative">
+              <img src="${car.image}" alt="${car.title}" class="w-full h-56 object-cover" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+              <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold ${car.status.toLowerCase().includes('crashed') ? 'bg-red-500/90 text-white' : 'bg-emerald-500/90 text-white'}">${car.status}</span>
+              <span class="absolute bottom-4 right-4 px-3 py-1 rounded-full bg-black/70 text-white text-sm font-bold">$${car.price}</span>
+            </div>
+            <div class="p-5 space-y-3 text-white">
+              <div class="flex items-start justify-between gap-3">
+                <h2 class="text-xl font-bold text-white">${car.title}</h2>
+                <span class="text-xs px-2 py-1 rounded-full bg-slate-700 text-slate-200 whitespace-nowrap">${car.condition}</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 text-sm text-slate-300">
+                <p><span class="text-slate-400">Mileage:</span> ${car.mileage}</p>
+                <p><span class="text-slate-400">Engine:</span> ${car.engine}</p>
+                <p><span class="text-slate-400">Status:</span> <span class="${statusColor}">${car.status}</span></p>
+                <p><span class="text-slate-400">Location:</span> ${car.location}</p>
+              </div>
+
+              <div class="pt-3 border-t border-white/10">
+                <p class="text-xs uppercase tracking-[0.2em] text-slate-400 mb-1">Auction</p>
+                <p class="text-sm text-slate-200">${car.auction}</p>
+              </div>
+
+              <div class="flex items-center justify-between pt-3 border-t border-white/10">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Contact</p>
+                  <p class="text-sm text-slate-200">${car.phone}</p>
+                </div>
+                <button
+                  type="button"
+                  class="prebid-btn bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full font-semibold transition"
+                  data-title="${car.title}"
+                  data-price="${car.price}"
+                  onclick="event.stopPropagation(); openPreBidModal(event)">Pre-Bid</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      const cards = carList.querySelectorAll('.car-card');
+      cards.forEach(card => {
+        const saveButton = card.querySelector('.save-car-btn');
+        if (saveButton) {
+          saveButton.addEventListener('click', event => {
+            event.stopPropagation();
+            const car = JSON.parse(decodeURIComponent(card.dataset.car));
+            toggleSavedCar(car, saveButton);
+          });
+        }
+
+        card.addEventListener('click', event => {
+          if (event.target.closest('.prebid-btn') || event.target.closest('.save-car-btn')) return;
+          const car = JSON.parse(decodeURIComponent(card.dataset.car));
+          openCarDetails(car);
+        });
+
+        card.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            const car = JSON.parse(decodeURIComponent(card.dataset.car));
+            openCarDetails(car);
+          }
+        });
+      });
+    }
+
+    function filterCars() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = cars.filter(car => {
+        const matchesSearch = car.title.toLowerCase().includes(query);
+        const matchesFilters = activeFilters.every(filter =>
+          JSON.stringify(car).toLowerCase().includes(filter)
+        );
+        return matchesSearch && matchesFilters;
+      });
+      displayCars(filtered);
+    }
+
+    function addFilter() {
+      const input = document.getElementById('filterInput');
+      const value = input.value.trim().toLowerCase();
+      if (value === '' || activeFilters.includes(value)) return;
+
+      activeFilters.push(value);
+
+      const container = document.getElementById('filterContainer');
+      const tag = document.createElement('div');
+      tag.className = 'bg-gray-600 px-3 py-1 rounded-full flex items-center gap-2 text-white';
+      tag.innerHTML = `${value}
+        <button onclick="removeFilter('${value}')" class="text-white hover:text-red-400">✕</button>`;
+      container.appendChild(tag);
+
+      input.value = '';
+      filterCars();
+    }
+
+    function removeFilter(value) {
+      activeFilters = activeFilters.filter(f => f !== value);
+      const container = document.getElementById('filterContainer');
+      [...container.children].forEach(child => {
+        if (child.textContent.trim().startsWith(value)) {
+          container.removeChild(child);
+        }
+      });
+      filterCars();
+    }
+
+    function clearAllFilters() {
+      activeFilters = [];
+      document.getElementById('filterContainer').innerHTML = '';
+      filterCars();
+    }
+
+    function getTransportCostFromLocation(locationText) {
+      const location = String(locationText || '').toLowerCase();
+      if (!location.trim()) return 0;
+
+      const nearbyRegions = [
+        'albania', 'tirana', 'durres', 'durrës', 'vlore', 'vlorë', 'shkoder', 'sarande', 'elbasan', 'fier', 'korçë', 'gjirokaster', 'berat', 'kukes', 'lezhe'
+      ];
+      if (nearbyRegions.some(region => location.includes(region))) return 0;
+
+      const europeanLight = [
+        'greece', 'athens', 'thessaloniki', 'italy', 'rome', 'milan', 'naples', 'florence', 'turin', 'venice', 'crete',
+        'kosovo', 'montenegro', 'north macedonia', 'macedonia', 'serbia', 'croatia', 'slovenia', 'bosnia', 'hungary'
+      ];
+      if (europeanLight.some(region => location.includes(region))) return 450;
+
+      const europeanMid = [
+        'france', 'paris', 'germany', 'berlin', 'munich', 'spain', 'madrid', 'barcelona', 'netherlands', 'amsterdam',
+        'belgium', 'brussels', 'austria', 'vienna', 'switzerland', 'zurich', 'poland', 'warsaw', 'czech', 'prague',
+        'portugal', 'lisbon', 'romania', 'bucharest', 'bulgaria', 'sofia', 'denmark', 'sweden', 'norway', 'finland', 'ireland' 
+      ];
+      if (europeanMid.some(region => location.includes(region))) return 1200;
+
+      const overseas = [
+        'uk', 'united kingdom', 'england', 'london', 'scotland', 'wales', 'usa', 'united states', 'canada', 'mexico',
+        'uae', 'dubai', 'saudi arabia', 'qatar', 'kuwait', 'turkey', 'japan', 'south korea', 'china', 'india', 'australia', 'new zealand', 'brazil', 'argentina', 'morocco', 'egypt', 'south africa'
+      ];
+      if (overseas.some(region => location.includes(region))) return 2600;
+
+      return 1800;
+    }
+
+    function isAlbanianDelivery(locationText) {
+      const location = String(locationText || '').toLowerCase();
+      if (!location.trim()) return true;
+
+      const albanianRegions = [
+        'albania', 'tirana', 'durres', 'durrës', 'vlore', 'vlorë', 'shkoder', 'sarande', 'elbasan', 'fier', 'korçë', 'gjirokaster', 'berat', 'kukes', 'lezhe'
+      ];
+
+      return albanianRegions.some(region => location.includes(region));
+    }
+
+    function openCostCalculatorModal() {
+      const modal = document.getElementById('costCalculatorModal');
+      if (modal) modal.classList.remove('hidden');
+      const resultBox = document.getElementById('costResultBox');
+      if (resultBox) resultBox.classList.add('hidden');
+    }
+
+    function toggleCustomsInfo(event) {
+      event.stopPropagation();
+      const button = event.currentTarget;
+      const popup = button.parentElement.querySelector('.customs-info-popover');
+      if (!popup) return;
+
+      const isHidden = popup.classList.contains('hidden');
+      document.querySelectorAll('.customs-info-popover').forEach(item => item.classList.add('hidden'));
+      if (isHidden) popup.classList.remove('hidden');
+    }
+
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest('.customs-info-button')) {
+        document.querySelectorAll('.customs-info-popover').forEach(item => item.classList.add('hidden'));
+      }
+    });
+
+    function closeCostCalculatorModal() {
+      const modal = document.getElementById('costCalculatorModal');
+      if (modal) modal.classList.add('hidden');
+      const form = document.getElementById('costCalculatorModal');
+      if (form) {
+        const priceInput = document.getElementById('carPriceInput');
+        const repairInput = document.getElementById('repairCostInput');
+        const locationInput = document.getElementById('locationInput');
+        if (priceInput) priceInput.value = '';
+        if (repairInput) repairInput.value = '';
+        if (locationInput) locationInput.value = '';
+      }
+      const resultBox = document.getElementById('costResultBox');
+      if (resultBox) resultBox.classList.add('hidden');
+    }
+
+    function calculateTotalCarCost() {
+      const carPrice = Number(document.getElementById('carPriceInput')?.value || 0);
+      const repairCost = Number(document.getElementById('repairCostInput')?.value || 0);
+      const location = document.getElementById('locationInput')?.value || '';
+      const deliveryCost = 50 + getTransportCostFromLocation(location);
+      const customsFee = isAlbanianDelivery(location) ? 0 : carPrice * 0.20;
+      const total = carPrice + repairCost + deliveryCost + customsFee;
+
+      const carPriceResult = document.getElementById('carPriceResult');
+      const repairCostResult = document.getElementById('repairCostResult');
+      const deliveryCostResult = document.getElementById('deliveryCostResult');
+      const customsFeeResult = document.getElementById('customsFeeResult');
+      const totalCostResult = document.getElementById('totalCostResult');
+      const resultBox = document.getElementById('costResultBox');
+
+      if (carPriceResult) carPriceResult.textContent = `€${carPrice.toLocaleString()}`;
+      if (repairCostResult) repairCostResult.textContent = `€${repairCost.toLocaleString()}`;
+      if (deliveryCostResult) deliveryCostResult.textContent = `$${deliveryCost.toLocaleString()}`;
+      if (customsFeeResult) customsFeeResult.textContent = `$${customsFee.toLocaleString()}`;
+      if (totalCostResult) totalCostResult.textContent = `€${total.toLocaleString()}`;
+      if (resultBox) resultBox.classList.remove('hidden');
+    }
+
+    // Initial load
+    displayCars(cars);
+
+    let selectedBidCar = null;
+
+    function parsePrice(value) {
+      return Number(String(value).replace(/[^\d.]/g, '')) || 0;
+    }
+
+    function openPreBidModal(event) {
+      event.preventDefault();
+
+      const button = event.currentTarget || event.target.closest('.prebid-btn');
+      const title = button.dataset.title || 'Selected vehicle';
+      const listedPrice = parsePrice(button.dataset.price || '0');
+
+      selectedBidCar = { title, listedPrice };
+
+      document.getElementById('preBidCarTitle').textContent = title;
+      document.getElementById('listedPriceDisplay').textContent = `$${listedPrice.toLocaleString()}`;
+      document.getElementById('buyNowPriceDisplay').textContent = `$${(listedPrice * 1.5).toLocaleString()}`;
+      document.getElementById('bidPriceInput').value = (listedPrice + 1000).toLocaleString('en-US', { maximumFractionDigits: 0 });
+      document.getElementById('bidPriceInput').min = listedPrice + 1;
+      document.getElementById('bidPriceInput').placeholder = `Minimum $${(listedPrice + 1).toLocaleString()}`;
+      document.getElementById('preBidError').textContent = '';
+      document.getElementById('preBidModal').classList.remove('hidden');
+    }
+
+    function closePreBidModal() {
+      document.getElementById('preBidModal').classList.add('hidden');
+    }
+
+    function submitBidOffer(event) {
+      event.preventDefault();
+
+      if (!selectedBidCar) return;
+
+      const bidValue = Number(document.getElementById('bidPriceInput').value.replace(/,/g, ''));
+      const minAllowed = selectedBidCar.listedPrice + 1;
+
+      if (!bidValue || bidValue <= selectedBidCar.listedPrice) {
+        document.getElementById('preBidError').textContent = 'Your bid must be greater than the listed price.';
+        return;
+      }
+
+      closePreBidModal();
+      document.getElementById('offerConfirmationText').textContent = `Your offer of $${bidValue.toLocaleString()} for ${selectedBidCar.title} will be viewed by customs.`;
+      document.getElementById('offerConfirmationModal').classList.remove('hidden');
+    }
+
+    function buyNowVehicle() {
+      if (!selectedBidCar) return;
+
+      const buyNowPrice = selectedBidCar.listedPrice * 1.5;
+      closePreBidModal();
+      document.getElementById('offerConfirmationText').textContent = `Your Buy Now offer of $${buyNowPrice.toLocaleString()} for ${selectedBidCar.title} will be viewed by customs. The car will be secured instantly.`;
+      document.getElementById('offerConfirmationModal').classList.remove('hidden');
+    }
+
+    function closeOfferConfirmation() {
+      document.getElementById('offerConfirmationModal').classList.add('hidden');
+    }
+	
+  </script>
+
+<!-- Pre-Bid Modal -->
+<div id="preBidModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+  <div class="bg-gray-900 p-6 rounded-lg shadow-lg w-[28rem] relative border border-red-500/20">
+    <button onclick="closePreBidModal()" class="absolute top-3 right-3 text-gray-400 hover:text-red-400 text-lg">✕</button>
+    <h2 class="text-2xl font-bold mb-2 text-white">Place Your Offer</h2>
+    <p class="text-slate-300 mb-4">Vehicle: <span id="preBidCarTitle" class="font-semibold text-white"></span></p>
+
+    <div class="mb-4 rounded-lg bg-slate-800 p-3 text-sm">
+      <div class="flex justify-between text-slate-300 mb-2">
+        <span>Listed price</span>
+        <span id="listedPriceDisplay" class="text-white font-semibold"></span>
+      </div>
+      <div class="flex justify-between text-slate-300">
+        <span>Buy Now</span>
+        <span id="buyNowPriceDisplay" class="text-green-400 font-semibold"></span>
+      </div>
+    </div>
+
+    <form onsubmit="submitBidOffer(event)">
+      <label for="bidPriceInput" class="block text-gray-300 mb-2">Enter your bid</label>
+      <input
+        id="bidPriceInput"
+        type="number"
+        min="1"
+        step="100"
+        class="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+        placeholder="Enter a price above the listed price"
+        required
+      />
+      <p id="preBidError" class="mt-2 text-sm text-red-400 min-h-[20px]"></p>
+
+      <div class="mt-5 space-y-3">
+        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-2.5 rounded font-semibold">
+          Submit Offer
+        </button>
+        <button type="button" onclick="buyNowVehicle()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded font-semibold">
+          Buy Now for <span id="buyNowPriceDisplayInline">$0</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Offer Confirmation Modal -->
+<div id="offerConfirmationModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+  <div class="bg-gray-900 p-6 rounded-lg shadow-lg w-96 relative border border-red-500/20">
+    <h2 class="text-2xl font-bold mb-4 text-white text-center">Offer Received</h2>
+    <p id="offerConfirmationText" class="text-gray-300 mb-6 text-center">Your offer will be viewed by customs.</p>
+    <button onclick="closeOfferConfirmation()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded">Continue</button>
+  </div>
+</div>
+
+<!-- Cost Calculator Modal -->
+<div id="costCalculatorModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+  <div class="bg-slate-900 border border-white/10 rounded-3xl shadow-2xl shadow-amber-950/30 w-full max-w-xl relative overflow-hidden">
+    <button type="button" onclick="closeCostCalculatorModal()" class="absolute top-4 right-4 text-slate-400 hover:text-red-400 text-2xl leading-none">✕</button>
+
+    <div class="bg-gradient-to-r from-amber-500/20 via-slate-900 to-red-500/10 p-6 md:p-8">
+      <p class="text-xs uppercase tracking-[0.38em] text-amber-300 font-semibold">Estimated total</p>
+      <h2 class="mt-3 text-3xl font-black text-white">Car Cost Calculator</h2>
+
+      <div class="mt-6 space-y-4">
+        <div>
+          <label for="carPriceInput" class="block text-sm font-medium text-slate-300 mb-2">Car price (€)</label>
+          <input id="carPriceInput" type="number" min="0" step="100" placeholder="25000" class="w-full px-3 py-3 rounded-xl bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+
+        <div>
+          <label for="repairCostInput" class="block text-sm font-medium text-slate-300 mb-2">Repair cost (optional, €)</label>
+          <input id="repairCostInput" type="number" min="0" step="100" placeholder="5000" class="w-full px-3 py-3 rounded-xl bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+
+        <div>
+          <label for="locationInput" class="block text-sm font-medium text-slate-300 mb-2">Delivery location</label>
+          <input id="locationInput" type="text" placeholder="Example: Italy, Germany, USA, Tirana" class="w-full px-3 py-3 rounded-xl bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+
+        <button type="button" onclick="calculateTotalCarCost()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition duration-200">Calculate total</button>
+      </div>
+
+      <div id="costResultBox" class="mt-6 hidden rounded-2xl border border-amber-500/25 bg-slate-800/80 p-4">
+        <div class="text-xs uppercase tracking-[0.3em] text-amber-300">Likely total</div>
+        <div id="totalCostResult" class="mt-3 text-3xl font-black text-white">€0</div>
+        <div class="mt-4 space-y-2 text-sm text-slate-300">
+          <div class="flex justify-between gap-4">
+            <span>Car price</span>
+            <span id="carPriceResult" class="font-semibold text-white">€0</span>
+          </div>
+          <div class="flex justify-between gap-4">
+            <span>Repair cost</span>
+            <span id="repairCostResult" class="font-semibold text-white">€0</span>
+          </div>
+          <div class="flex justify-between gap-4">
+            <span>Delivery cost</span>
+            <span id="deliveryCostResult" class="font-semibold text-amber-300">$0</span>
+          </div>
+          <div class="flex justify-between gap-4 items-center">
+            <div class="relative inline-flex items-center gap-2">
+              <span>Customs fee</span>
+              <button type="button" class="customs-info-button" aria-label="Customs fee info" onclick="toggleCustomsInfo(event)">!</button>
+              <div class="customs-info-popover hidden">Customs fee is 20% of the vehicle value.</div>
+            </div>
+            <span id="customsFeeResult" class="font-semibold text-red-300">$0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sign In Modal -->
+<div id="signInModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+  <div class="bg-slate-900 border border-white/10 rounded-3xl shadow-2xl shadow-red-950/30 w-full max-w-xl overflow-hidden relative">
+    <button onclick="closeSignIn()" class="absolute top-4 right-4 text-slate-400 hover:text-red-400 text-2xl leading-none">✕</button>
+
+    <div class="grid md:grid-cols-[1.05fr_1.3fr]">
+      <div class="hidden md:flex flex-col justify-between bg-gradient-to-br from-red-600 via-red-700 to-slate-950 p-8 text-white">
+        <div>
+          <div class="text-xs uppercase tracking-[0.4em] text-red-100/80">Welcome back</div>
+          <h2 class="mt-4 text-3xl font-black tracking-tight">Premium Cars</h2>
+        </div>
+
+        <div class="space-y-3 text-sm text-red-50/90">
+          <div class="flex items-center gap-3"><span class="inline-block w-2 h-2 rounded-full bg-red-200"></span> Secure access to your bids</div>
+          <div class="flex items-center gap-3"><span class="inline-block w-2 h-2 rounded-full bg-red-200"></span> Track saved vehicles</div>
+          <div class="flex items-center gap-3"><span class="inline-block w-2 h-2 rounded-full bg-red-200"></span> Receive instant alerts</div>
+        </div>
+      </div>
+
+      <div class="p-6 md:p-8">
+        <div class="mb-6">
+          <p class="text-xs uppercase tracking-[0.35em] text-red-400 font-semibold">Account</p>
+          <h2 class="mt-3 text-3xl font-black text-white">Sign In</h2>
+        </div>
+
+        <form id="signInForm" onsubmit="handleLogin(event)" novalidate>
+          <div class="mb-4">
+            <label for="email" class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              autocomplete="email"
+              placeholder="name@example.com"
+              class="w-full px-3 py-3 rounded-xl bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+            />
+          </div>
+
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <label for="password" class="block text-sm font-medium text-slate-300">Password</label>
+              <button type="button" onclick="togglePasswordVisibility()" class="text-xs text-red-300 hover:text-red-200">Show</button>
+            </div>
+            <div class="relative">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                autocomplete="current-password"
+                placeholder="Enter your password"
+                class="w-full px-3 py-3 pr-11 rounded-xl bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              />
+            </div>
+          </div>
+
+          <div class="mb-5 flex items-center justify-between gap-3 text-sm">
+            <label class="inline-flex items-center gap-2 text-slate-300">
+              <input type="checkbox" id="rememberMe" class="h-4 w-4 rounded border-slate-600 bg-slate-800 text-red-500 focus:ring-red-500" />
+              Remember me
+            </label>
+            <button type="button" class="text-red-300 hover:text-red-200">Forgot password?</button>
+          </div>
+
+          <p id="signInError" class="min-h-[20px] text-sm text-red-400 mb-3"></p>
+
+          <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-xl transition duration-200 shadow-lg shadow-red-600/25">
+            Login
+          </button>
+
+          <div class="mt-5 text-center text-sm text-slate-400">
+            Need an account? <button type="button" class="text-red-300 hover:text-red-200 font-medium">Create one</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let showingCrashed = false;
+  let lastMarketplaceState = {
+    view: 'inventory',
+    scrollY: 0
+  };
+
+  function scrollToListingsIfNeeded() {
+    const listingsPage = document.getElementById('listingsPage');
+    if (!listingsPage) return;
+
+    const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
+    if (currentScroll < 120) {
+      const target = listingsPage.getBoundingClientRect().top + currentScroll - 80;
+      window.scrollTo({ top: target, behavior: 'smooth' });
+    }
+  }
+
+  function restoreMarketplaceView(viewType = 'inventory') {
+    lastMarketplaceState.view = viewType;
+    document.getElementById('aboutPage').classList.add('hidden');
+    document.getElementById('homePage').classList.remove('hidden');
+    document.getElementById('featuresPage').classList.remove('hidden');
+    document.getElementById('filterSection').classList.remove('hidden');
+    document.getElementById('listingsPage').classList.remove('hidden');
+
+    const button = document.querySelector("button[onclick='toggleCarView()']");
+
+    if (viewType === 'damaged') {
+      showingCrashed = true;
+      if (button) button.textContent = 'View Run & Drive Cars';
+      displayCars(cars.filter(car => car.status.toLowerCase().includes('crashed')));
+    } else if (viewType === 'auctions') {
+      showingCrashed = false;
+      if (button) button.textContent = 'View Crashed Cars';
+      displayCars(cars.filter(car => car.status.toLowerCase().includes('run & drive')));
+    } else {
+      showingCrashed = false;
+      if (button) button.textContent = 'View Crashed Cars';
+      displayCars(cars);
+    }
+
+    scrollToListingsIfNeeded();
+  }
+
+  function showAboutPage() {
+    lastMarketplaceState.scrollY = window.scrollY;
+    lastMarketplaceState.view = showingCrashed ? 'damaged' : 'inventory';
+    document.getElementById('homePage').classList.add('hidden');
+    document.getElementById('featuresPage').classList.add('hidden');
+    document.getElementById('filterSection').classList.add('hidden');
+    document.getElementById('listingsPage').classList.add('hidden');
+    document.getElementById('aboutPage').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showHomePage() {
+    restoreMarketplaceView(lastMarketplaceState.view);
+  }
+
+  function openSignIn() {
+    const modal = document.getElementById('signInModal');
+    const errorBox = document.getElementById('signInError');
+    if (modal) modal.classList.remove('hidden');
+    if (errorBox) errorBox.textContent = '';
+  }
+
+  function closeSignIn() {
+    const modal = document.getElementById('signInModal');
+    if (modal) modal.classList.add('hidden');
+    const form = document.getElementById('signInForm');
+    if (form) form.reset();
+    const errorBox = document.getElementById('signInError');
+    if (errorBox) errorBox.textContent = '';
+  }
+
+  function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('password');
+    const toggleButton = document.querySelector('#signInModal button[onclick="togglePasswordVisibility()"]');
+    if (!passwordInput || !toggleButton) return;
+
+    const isHidden = passwordInput.type === 'password';
+    passwordInput.type = isHidden ? 'text' : 'password';
+    toggleButton.textContent = isHidden ? 'Hide' : 'Show';
+  }
+
+  function updateAuthUI(userEmail) {
+    const authControl = document.getElementById('authControl');
+    if (!authControl) return;
+
+    const displayName = userEmail.split('@')[0].replace(/[._-]/g, ' ');
+    const initials = displayName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(part => part.charAt(0).toUpperCase())
+      .join('') || 'U';
+
+    authControl.innerHTML = `
+      <div class="flex items-center gap-3 rounded-full border border-slate-700 bg-slate-800/90 px-2 py-1.5 shadow-lg shadow-slate-950/30">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-red-700 text-sm font-black text-white">${initials}</div>
+        <div class="flex flex-col leading-tight text-left">
+          <span class="text-xs uppercase tracking-[0.2em] text-red-300">User</span>
+          <span class="text-sm font-medium text-white">${displayName}</span>
+        </div>
+        <button type="button" onclick="signOutUser()" class="ml-2 text-xs text-slate-300 hover:text-red-300">Sign out</button>
+      </div>
+    `;
+  }
+
+  function signOutUser() {
+    const authControl = document.getElementById('authControl');
+    if (authControl) {
+      authControl.innerHTML = '<button onclick="openSignIn()" class="bg-slate-800 text-white px-4 py-2.5 rounded-full border border-slate-600 hover:border-red-500 hover:text-red-300 transition">Sign In</button>';
+    }
+    localStorage.removeItem('premiumCarsUser');
+  }
+
+  function handleLogin(event) {
+    event.preventDefault();
+
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const errorBox = document.getElementById('signInError');
+
+    const email = (emailInput?.value || '').trim();
+    const password = (passwordInput?.value || '').trim();
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      if (errorBox) errorBox.textContent = 'Please enter a valid email address.';
+      return;
+    }
+
+    if (password.length < 6) {
+      if (errorBox) errorBox.textContent = 'Password must be at least 6 characters long.';
+      return;
+    }
+
+    const rememberMe = document.getElementById('rememberMe')?.checked;
+    const user = { email, rememberMe, signedInAt: new Date().toISOString() };
+
+    localStorage.setItem('premiumCarsUser', JSON.stringify(user));
+    updateAuthUI(email);
+    closeSignIn();
+  }
+
+  function restoreSavedSession() {
+    const authControl = document.getElementById('authControl');
+    if (!authControl) return;
+
+    try {
+      const savedUser = JSON.parse(localStorage.getItem('premiumCarsUser') || 'null');
+      if (savedUser && savedUser.email) {
+        updateAuthUI(savedUser.email);
+      }
+    } catch (error) {
+      console.warn('Failed to restore saved auth session.', error);
+    }
+  }
+
+  restoreSavedSession();
+  updateSavedCarsUI();
+  renderSavedCars();
+
+  const assistantFab = document.getElementById('assistantFloatingButton');
+  const assistantChatPanel = document.getElementById('assistantChatPanel');
+  const assistantMessages = document.getElementById('assistantMessages');
+  const assistantInput = document.getElementById('assistantInput');
+  const assistantForm = document.getElementById('assistantForm');
+  const assistantCloseBtn = document.getElementById('assistantCloseBtn');
+  const assistantQuickSuggestions = document.querySelectorAll('.assistant-suggestion');
+
+  let assistantDragState = null;
+
+  function addAssistantMessage(text, type = 'bot', isHtml = false) {
+    const message = document.createElement('div');
+    message.className = `assistant-message ${type}`;
+
+    if (isHtml) {
+      message.innerHTML = text;
+      if (type === 'bot') {
+        message.querySelectorAll('.assistant-car-link').forEach(button => {
+          button.addEventListener('click', () => {
+            const car = JSON.parse(decodeURIComponent(button.dataset.car));
+            openCarDetails(car);
+          });
+        });
+      }
+    } else {
+      message.textContent = text;
+    }
+
+    assistantMessages.appendChild(message);
+    assistantMessages.scrollTop = assistantMessages.scrollHeight;
+  }
+
+  function buildAssistantCarLink(car) {
+    return `<button type="button" class="assistant-car-link" data-car="${encodeURIComponent(JSON.stringify(car))}">${car.title.trim()}</button>`;
+  }
+
+  function getAssistantMatches(query) {
+    const q = String(query || '').toLowerCase().trim();
+    if (!q) return [];
+
+    return cars.filter(car => {
+      const haystack = `${car.title} ${car.condition} ${car.engine} ${car.status} ${car.location}`.toLowerCase();
+      const normalizedTitle = car.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return haystack.includes(q) || q.includes(normalizedTitle) || normalizedTitle.includes(q);
+    });
+  }
+
+  function extractBrandIntent(query) {
+    const lower = String(query || '').toLowerCase();
+
+    const explicitBrandMatch = lower.match(/(?:i need|need|want|looking for|searching for|find me|show me|do you have|have|get me|need a|want a|looking for a|search for|find|show).*?(audi|bmw|mercedes|range rover|porsche|vw|nissan)/i);
+    if (explicitBrandMatch) {
+      return explicitBrandMatch[1].toLowerCase();
+    }
+
+    const directBrandMatch = lower.match(/\b(audi|bmw|mercedes|range rover|porsche|vw|nissan)\b/i);
+    if (directBrandMatch) {
+      return directBrandMatch[1].toLowerCase();
+    }
+
+    return null;
+  }
+
+  function formatCarStockReply(matches, query) {
+    if (!matches.length) {
+      return {
+        text: `I do not see a matching car for “${query}” in stock right now. I can suggest premium alternatives like Audi A8, BMW M3, Range Rover Vogue, or a clean daily driver from the current inventory.`,
+        matches: []
+      };
+    }
+
+    const topMatches = matches.slice(0, 3);
+    const stockInfo = topMatches.map(car => buildAssistantCarLink(car)).join(' • ');
+    return {
+      text: `Yes — I found these in stock right now: ${stockInfo}.`,
+      matches: topMatches
+    };
+  }
+
+  function getAssistantReply(question) {
+    const q = (question || '').trim();
+    if (!q) {
+      return { text: 'Tell me the model, budget, or condition you want, and I will help you check what is in stock.', matches: [] };
+    }
+
+    const lower = q.toLowerCase();
+    const brandIntent = extractBrandIntent(lower);
+
+    if (/(^hi$|^hello$|^hey$|^good morning$|^good evening$|^hey there$|^hi there$)/.test(lower)) {
+      return { text: 'Hi! I am here to help. How can I help you today?', matches: [] };
+    }
+
+    if (/(website|site|created|made by|made this|who made|who built|creator|developer)/.test(lower)) {
+      return { text: 'This website was made by Mikele Nurja, a student from Harry Fultz School.', matches: [] };
+    }
+
+    if (brandIntent) {
+      const matches = getAssistantMatches(brandIntent).slice(0, 3);
+      if (!matches.length) {
+        return { text: `I do not see any ${brandIntent.toUpperCase()} cars in stock right now, but I can suggest related premium cars such as BMW M3 Competition, Audi A8, or Mercedes S Class.`, matches: [] };
+      }
+      return formatCarStockReply(matches, brandIntent);
+    }
+
+    if (/(stock|available|in stock|now)/.test(lower)) {
+      const target = lower.replace(/(stock|available|in stock|now|is|this|that|please|help|me|check|find)/g, '').trim();
+      const matches = target ? getAssistantMatches(target) : cars.slice(0, 3);
+      return formatCarStockReply(matches, target || 'current inventory');
+    }
+
+    if (/(luxury|premium)/.test(lower)) {
+      const matches = cars.filter(car => Number(String(car.price).replace(/[^\d]/g, '')) >= 50000).slice(0, 3);
+      if (!matches.length) {
+        return { text: 'There are no premium vehicles above $50k currently matching that filter, but I can suggest several strong options under that budget.', matches: [] };
+      }
+      const list = matches.map(car => buildAssistantCarLink(car)).join(' • ');
+      return { text: `Here are some luxury picks I recommend right now: ${list}.`, matches };
+    }
+
+    if (/(damaged|crashed|repair|repairable)/.test(lower)) {
+      const damagedCars = cars.filter(car => car.status.toLowerCase().includes('crashed')).slice(0, 3);
+      if (!damagedCars.length) return { text: 'No damaged cars are currently in the active list, but I can check for other project vehicles.', matches: [] };
+      const list = damagedCars.map(car => buildAssistantCarLink(car)).join(' • ');
+      return { text: `I found damaged options currently available: ${list}.`, matches: damagedCars };
+    }
+
+    if (/(bmw|mercedes|audi|range rover|porsche|vw|nissan)/.test(lower)) {
+      const matches = getAssistantMatches(lower).slice(0, 3);
+      if (!matches.length) {
+        return { text: `I do not see that exact model in stock right now, but I can suggest closely related models such as BMW M3 Competition, Audi A8, or Mercedes S Class.`, matches: [] };
+      }
+      return formatCarStockReply(matches, lower);
+    }
+
+    const matches = getAssistantMatches(lower).slice(0, 3);
+    if (matches.length) {
+      return formatCarStockReply(matches, lower);
+    }
+
+    return { text: `I do not see an exact match for “${q}” in the current stock. I can help you narrow it down by budget, body type, or condition — for example: luxury sedan, BMW under $100k, or damaged SUV.`, matches: [] };
+  }
+
+  function positionAssistantPanel() {
+    if (assistantChatPanel.classList.contains('hidden')) return;
+
+    const fabRect = assistantFab.getBoundingClientRect();
+    const panelWidth = Math.min(352, window.innerWidth - 24);
+    const left = Math.min(window.innerWidth - panelWidth - 12, Math.max(12, fabRect.left - panelWidth + 60));
+    const top = Math.max(12, fabRect.top - 260);
+
+    assistantChatPanel.style.left = `${left}px`;
+    assistantChatPanel.style.top = `${top}px`;
+  }
+
+  function toggleAssistantChat(forceOpen) {
+    const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : assistantChatPanel.classList.contains('hidden');
+    assistantChatPanel.classList.toggle('hidden', !shouldOpen);
+    if (shouldOpen) {
+      positionAssistantPanel();
+      setTimeout(() => assistantInput.focus(), 80);
+    }
+  }
+
+  function handleAssistantSubmit(event) {
+    event.preventDefault();
+    const question = assistantInput.value.trim();
+    if (!question) return;
+
+    addAssistantMessage(question, 'user');
+    assistantInput.value = '';
+
+    const reply = getAssistantReply(question);
+    setTimeout(() => addAssistantMessage(reply.text, 'bot', true), 220);
+  }
+
+  assistantFab.addEventListener('click', () => toggleAssistantChat());
+  assistantFab.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggleAssistantChat();
+    }
+  });
+
+  assistantCloseBtn.addEventListener('click', () => toggleAssistantChat(false));
+  assistantForm.addEventListener('submit', handleAssistantSubmit);
+
+  assistantQuickSuggestions.forEach(button => {
+    button.addEventListener('click', () => {
+      const query = button.dataset.query;
+      assistantInput.value = query;
+      handleAssistantSubmit({ preventDefault() {} });
+      toggleAssistantChat(true);
+    });
+  });
+
+  assistantFab.addEventListener('pointerdown', event => {
+    if (event.target.closest('input, button')) return;
+
+    assistantDragState = {
+      startX: event.clientX,
+      startY: event.clientY,
+      baseLeft: assistantFab.offsetLeft || (window.innerWidth - assistantFab.offsetWidth - 20),
+      baseTop: assistantFab.offsetTop || (window.innerHeight - assistantFab.offsetHeight - 20)
+    };
+
+    assistantFab.classList.add('dragging');
+    assistantFab.setPointerCapture(event.pointerId);
+  });
+
+  assistantFab.addEventListener('pointermove', event => {
+    if (!assistantDragState) return;
+
+    const deltaX = event.clientX - assistantDragState.startX;
+    const deltaY = event.clientY - assistantDragState.startY;
+    const maxLeft = window.innerWidth - assistantFab.offsetWidth - 12;
+    const maxTop = window.innerHeight - assistantFab.offsetHeight - 12;
+    const newLeft = Math.max(12, Math.min(maxLeft, assistantDragState.baseLeft + deltaX));
+    const newTop = Math.max(12, Math.min(maxTop, assistantDragState.baseTop + deltaY));
+
+    assistantFab.style.left = `${newLeft}px`;
+    assistantFab.style.top = `${newTop}px`;
+    assistantFab.style.right = 'auto';
+    assistantFab.style.bottom = 'auto';
+  });
+
+  assistantFab.addEventListener('pointerup', () => {
+    assistantDragState = null;
+    assistantFab.classList.remove('dragging');
+    if (assistantChatPanel && !assistantChatPanel.classList.contains('hidden')) {
+      positionAssistantPanel();
+    }
+  });
+
+  assistantFab.addEventListener('pointerleave', () => {
+    if (!assistantDragState) return;
+    assistantDragState = null;
+    assistantFab.classList.remove('dragging');
+  });
+
+  window.addEventListener('resize', () => {
+    if (assistantChatPanel && !assistantChatPanel.classList.contains('hidden')) {
+      positionAssistantPanel();
+    }
+  });
+
+  function toggleCarView() {
+    const button = document.querySelector("button[onclick='toggleCarView()']");
+    showingCrashed = !showingCrashed;
+    lastMarketplaceState.view = showingCrashed ? 'damaged' : 'auctions';
+
+    if (showingCrashed) {
+      button.textContent = 'View Run & Drive Cars';
+      const crashedCars = cars.filter(car => car.status.toLowerCase().includes('crashed'));
+      displayCars(crashedCars);
+    } else {
+      button.textContent = 'View Crashed Cars';
+      const runAndDriveCars = cars.filter(car => car.status.toLowerCase().includes('run & drive'));
+      displayCars(runAndDriveCars);
+    }
+
+    scrollToListingsIfNeeded();
+  }
+
+  function openPreBidModal(event) {
+    event.preventDefault();
+    const button = event.currentTarget || event.target.closest('.prebid-btn');
+    const title = button.dataset.title || 'Selected vehicle';
+    const listedPrice = Number(String(button.dataset.price || '0').replace(/[^\d.]/g, '')) || 0;
+
+    selectedBidCar = { title, listedPrice };
+    document.getElementById('preBidCarTitle').textContent = title;
+    document.getElementById('listedPriceDisplay').textContent = `$${listedPrice.toLocaleString()}`;
+    const buyNowPrice = listedPrice * 1.5;
+    document.getElementById('buyNowPriceDisplay').textContent = `$${buyNowPrice.toLocaleString()}`;
+    document.getElementById('buyNowPriceDisplayInline').textContent = `$${buyNowPrice.toLocaleString()}`;
+    document.getElementById('bidPriceInput').value = (listedPrice + 1000).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    document.getElementById('bidPriceInput').min = listedPrice + 1;
+    document.getElementById('preBidError').textContent = '';
+    document.getElementById('preBidModal').classList.remove('hidden');
+  }
+
+  function closePreBidModal() {
+    document.getElementById('preBidModal').classList.add('hidden');
+  }
+
+  function submitBidOffer(event) {
+    event.preventDefault();
+
+    if (!selectedBidCar) return;
+
+    const bidValue = Number(document.getElementById('bidPriceInput').value.replace(/,/g, ''));
+
+    if (!bidValue || bidValue <= selectedBidCar.listedPrice) {
+      document.getElementById('preBidError').textContent = 'Your bid must be greater than the listed price.';
+      return;
+    }
+
+    closePreBidModal();
+    document.getElementById('offerConfirmationText').textContent = `Your offer of $${bidValue.toLocaleString()} for ${selectedBidCar.title} will be viewed by customs.`;
+    document.getElementById('offerConfirmationModal').classList.remove('hidden');
+  }
+
+  function buyNowVehicle() {
+    if (!selectedBidCar) return;
+
+    const buyNowPrice = selectedBidCar.listedPrice * 1.5;
+    closePreBidModal();
+    document.getElementById('offerConfirmationText').textContent = `Your Buy Now offer of $${buyNowPrice.toLocaleString()} for ${selectedBidCar.title} will be viewed by customs. The vehicle will be secured instantly.`;
+    document.getElementById('offerConfirmationModal').classList.remove('hidden');
+  }
+
+  function closeOfferConfirmation() {
+    document.getElementById('offerConfirmationModal').classList.add('hidden');
+  }
+</script>
+</body>
+</html>
